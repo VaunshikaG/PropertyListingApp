@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   Platform,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { Calendar, MapPin } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { Booking, Property } from "@/types";
 import { useRouter } from "expo-router";
+
+const { width } = Dimensions.get("window");
 
 interface BookingCardProps {
   booking: Booking;
@@ -23,7 +26,18 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   property,
 }) => {
   const router = useRouter();
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
+  if (!property) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          Property details not available for this booking.
+        </Text>
+      </View>
+    );
+  }
   const handlePress = () => {
     router.push(`/property/${property.id}`);
   };
@@ -50,6 +64,13 @@ export const BookingCard: React.FC<BookingCardProps> = ({
     }
   };
 
+  const handleScroll = (event: {
+    nativeEvent: { contentOffset: { x: number } };
+  }) => {
+    const slide = Math.round(event.nativeEvent.contentOffset.x / width);
+    setActiveIndex(slide);
+  };
+
   return (
     <TouchableOpacity
       style={styles.container}
@@ -57,7 +78,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
       activeOpacity={0.9}
     >
       <View style={styles.imageContainer}>
-        {property && property.images && property.images.length > 0 ? (
+        {property.images && property.images.length > 0 ? (
           property.images.map((img, idx) => (
             <Image
               key={idx}
@@ -100,7 +121,9 @@ export const BookingCard: React.FC<BookingCardProps> = ({
         </View>
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Total:</Text>
-          <Text style={styles.price}>${booking.totalPrice}</Text>
+          <Text style={styles.price}>
+            ${booking.totalPrice.toLocaleString()}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -128,14 +151,40 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  styleImg: {
+    width: "100%",
+    height: "100%",
+  },
+  scrollView: {
+    width: "100%",
+    height: 250,
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: "#007bff",
+    width: 12,
+    height: 8,
+    borderRadius: 4,
+  },
   imageContainer: {
     height: 150,
     width: "100%",
     position: "relative",
-  },
-  styleImg: {
-    width: "100%",
-    height: "100%",
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    overflow: "hidden",
   },
   statusBadge: {
     position: "absolute",
@@ -155,18 +204,18 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "600",
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 2,
   },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 2,
   },
   locationText: {
-    marginLeft: 4,
+    marginLeft: 5,
     fontSize: 14,
     color: colors.textLight,
   },
@@ -176,7 +225,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   dateText: {
-    marginLeft: 4,
+    marginLeft: 5,
     fontSize: 14,
     color: colors.textLight,
   },
@@ -184,7 +233,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 12,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -193,8 +242,23 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   price: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: colors.text,
+  },
+  errorContainer: {
+    padding: 16,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.error,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 1,
+    fontWeight: "500",
   },
 });

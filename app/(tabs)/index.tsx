@@ -16,7 +16,6 @@ export default function HomeScreen() {
   };
 
   if (isLoading) {
-    console.log(properties);
     return <LoadingIndicator message="Loading properties..." />;
   }
 

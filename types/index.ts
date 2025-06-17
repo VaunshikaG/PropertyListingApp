@@ -1,22 +1,18 @@
 export interface Property {
   id: number;
   title: string;
-  description: string;
   price: number;
-  images: string[];
   location: {
     city: string;
+    state: string;
     address: string;
-    latitude: number;
-    longitude: number;
+    coordinates: {
+      latitude: number;
+      longitude: number;
+    }
   };
   features: string[];
-  rating: number;
-  reviews: number;
-  host: {
-    name: string;
-    image: string;
-  };
+  images: string[];
 }
 
 export interface Booking {
@@ -37,7 +33,7 @@ export interface User {
 }
 
 export interface BookingFormData {
-  startDate: string;
-  endDate: string;
+  checkInDate: string;
+  checkOutDate: string;
   guests: number;
 }

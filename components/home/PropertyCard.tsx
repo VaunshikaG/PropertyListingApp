@@ -24,9 +24,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     router.push(`/property/${property.id}`);
   };
 
-  console.log("PropertyCard Image URL:", property.id);
-  console.log("PropertyCard Image URL:", property.images);
-
   return (
     <TouchableOpacity
       style={styles.container}
@@ -56,10 +53,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           <Text style={styles.title} numberOfLines={1}>
             {property.title}
           </Text>
-          <View style={styles.ratingContainer}>
-            <Star size={14} color={colors.secondary} fill={colors.secondary} />
-            <Text style={styles.rating}>{property.rating}</Text>
-          </View>
         </View>
         <Text style={styles.location} numberOfLines={1}>
           {property.location.city}, {property.location.address}

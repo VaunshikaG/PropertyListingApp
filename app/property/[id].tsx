@@ -1,5 +1,12 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  Dimensions,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Star, User } from "lucide-react-native";
 import { colors } from "@/constants/colors";
@@ -9,10 +16,14 @@ import { PropertyMap } from "@/components/property/PropertyMap";
 import { BookingForm } from "@/components/property/BookingForm";
 import { usePropertyDetails } from "@/hooks/usePropertyDetails";
 
+const { width } = Dimensions.get("window");
+
 export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const propertyId = parseInt(id as string, 10);
   const { property, isLoading, error } = usePropertyDetails(propertyId);
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (isLoading) {
     return <LoadingIndicator message="Loading property details..." />;
@@ -28,69 +39,72 @@ export default function PropertyDetailScreen() {
     );
   }
 
-  console.log("property:", property.images.length);
+  const handleScroll = (event: {
+    nativeEvent: { contentOffset: { x: number } };
+  }) => {
+    const slide = Math.round(event.nativeEvent.contentOffset.x / width);
+    setActiveIndex(slide);
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.imageContainer}>
-        {property && property?.images?.length > 0 ? (
-          property.images.map((img, idx) => (
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          style={styles.scrollView}
+        >
+          {(property.images.length > 0
+            ? property.images
+            : ["https://reactnative.dev/img/tiny_logo.png"]
+          ).map((img, idx) => (
             <Image
               key={idx}
               source={{ uri: img }}
               style={styles.styleImg}
               resizeMode="cover"
-              alt={`Property Image ${idx + 1}`}
-              className="w-full h-64 object-cover rounded-lg mb-4 shadow-md"
               onError={(e) => {
-                console.error("Image failed to load:", e.currentTarget);
-                // Optionally replace with a generic error image
-                e.currentTarget.blur;
+                console.error("Image failed to load:", e.nativeEvent);
               }}
             />
-          ))
-        ) : (
-          <Image
-            source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-            style={styles.styleImg}
-            resizeMode="cover"
-          />
-        )}
+          ))}
+        </ScrollView>
+        <View style={styles.dotsContainer}>
+          {(property.images.length > 0
+            ? property.images
+            : ["https://reactnative.dev/img/tiny_logo.png"]
+          ).map((_, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.dot,
+                activeIndex === idx ? styles.activeDot : null,
+              ]}
+            />
+          ))}
+        </View>
       </View>
 
       <View style={styles.contentContainer}>
         <View style={styles.headerContainer}>
           <Text style={styles.title}>{property.title}</Text>
-          <View style={styles.ratingContainer}>
-            <Star size={16} color={colors.secondary} fill={colors.secondary} />
-            <Text style={styles.rating}>{property.rating}</Text>
-            <Text style={styles.reviews}>({property.reviews} reviews)</Text>
-          </View>
         </View>
 
         <Text style={styles.location}>
           {property.location.city}, {property.location.address}
         </Text>
 
-        <View style={styles.hostContainer}>
-          <Image
-            source={{ uri: property.host.image }}
-            style={styles.hostImage}
-          />
-          <Text style={styles.hostedBy}>
-            Hosted by <Text style={styles.hostName}>{property.host.name}</Text>
-          </Text>
-        </View>
-
         <View style={styles.divider} />
-
-        <Text style={styles.description}>{property.description}</Text>
 
         <FeatureList features={property.features} />
 
         <PropertyMap
-          latitude={property.location.latitude}
-          longitude={property.location.longitude}
+          latitude={property.location.coordinates.latitude}
+          longitude={property.location.coordinates.longitude}
           address={`${property.location.address}, ${property.location.city}`}
         />
 
@@ -109,9 +123,33 @@ const styles = StyleSheet.create({
     height: 250,
     width: "100%",
   },
-  styleImg: {
+  scrollView: {
     width: "100%",
-    height: "100%",
+    height: 250,
+  },
+  styleImg: {
+    width: width,
+    height: 250,
+    borderRadius: 12,
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: "#007bff",
+    width: 12,
+    height: 8,
+    borderRadius: 4,
   },
   contentContainer: {
     padding: 16,
@@ -191,3 +229,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+function setActiveIndex(slide: number) {
+  throw new Error("Function not implemented.");
+}
