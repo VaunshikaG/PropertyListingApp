@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.property-booking-app"
+      "package": "com.propertyListingApp"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -37,6 +37,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": "https://rork.com/"
+      },
+      "eas": {
+        "projectId": "9f6d9020-3e13-4c64-97c4-eca3a84256dc"
+      }
+    },
+    "owner": "flutterspace"
   }
 }

@@ -1,7 +1,6 @@
-// Color palette for the app
 export const colors = {
-  primary: '#4A6FA5', // Soft blue
-  secondary: '#E8C07D', // Warm gold
+  primary: '#4A6FA5',
+  secondary: '#E8C07D',
   background: '#FFFFFF',
   card: '#F8F9FA',
   text: '#333333',
