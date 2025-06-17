@@ -39,14 +39,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             <Image
               key={idx}
               source={{ uri: img }}
-              style={styles.image}
+              style={styles.styleImg}
               resizeMode="cover"
             />
           ))
         ) : (
           <Image
             source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-            style={styles.image}
+            style={styles.styleImg}
             resizeMode="cover"
           />
         )}
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 12,
     overflow: "hidden",
   },
-  image: {
+  styleImg: {
     width: "100%",
     height: "100%",
   },

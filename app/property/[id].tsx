@@ -38,7 +38,7 @@ export default function PropertyDetailScreen() {
             <Image
               key={idx}
               source={{ uri: img }}
-              style={styles.image}
+              style={styles.styleImg}
               resizeMode="cover"
               alt={`Property Image ${idx + 1}`}
               className="w-full h-64 object-cover rounded-lg mb-4 shadow-md"
@@ -52,7 +52,7 @@ export default function PropertyDetailScreen() {
         ) : (
           <Image
             source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-            style={styles.image}
+            style={styles.styleImg}
             resizeMode="cover"
           />
         )}
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     height: 250,
     width: "100%",
   },
-  image: {
+  styleImg: {
     width: "100%",
     height: "100%",
   },

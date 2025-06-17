@@ -62,14 +62,14 @@ export const BookingCard: React.FC<BookingCardProps> = ({
             <Image
               key={idx}
               source={{ uri: img }}
-              style={styles.image}
+              style={styles.styleImg}
               resizeMode="cover"
             />
           ))
         ) : (
           <Image
             source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-            style={styles.image}
+            style={styles.styleImg}
             resizeMode="cover"
           />
         )}
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     width: "100%",
     position: "relative",
   },
-  image: {
+  styleImg: {
     width: "100%",
     height: "100%",
   },
