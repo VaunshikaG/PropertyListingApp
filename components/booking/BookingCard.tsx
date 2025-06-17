@@ -57,8 +57,8 @@ export const BookingCard: React.FC<BookingCardProps> = ({
       activeOpacity={0.9}
     >
       <View style={styles.imageContainer}>
-        {property && property.image && property.image.length > 0 ? (
-          property.image.map((img, idx) => (
+        {property && property.images && property.images.length > 0 ? (
+          property.images.map((img, idx) => (
             <Image
               key={idx}
               source={{ uri: img }}

@@ -1,7 +1,7 @@
 import { Property, Booking, User } from '@/types';
 
 // Base URL for the JSON server
-const API_URL = 'http://172.20.10.4:3000';
+const API_URL = 'http://172.20.10.4:5000';
 
 // Fetch all properties with optional search query
 export const fetchProperties = async (search?: string): Promise<Property[]> => {

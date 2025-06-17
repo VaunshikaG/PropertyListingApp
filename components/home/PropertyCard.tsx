@@ -24,7 +24,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     router.push(`/property/${property.id}`);
   };
 
-  console.log("PropertyCard Image URL:", property.image);
+  console.log("PropertyCard Image URL:", property.id);
+  console.log("PropertyCard Image URL:", property.images);
 
   return (
     <TouchableOpacity
@@ -33,8 +34,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       activeOpacity={0.9}
     >
       <View style={styles.imageContainer}>
-        {property && property.image && property.image.length > 0 ? (
-          property.image.map((img, idx) => (
+        {property && property.images && property.images.length > 0 ? (
+          property.images.map((img, idx) => (
             <Image
               key={idx}
               source={{ uri: img }}

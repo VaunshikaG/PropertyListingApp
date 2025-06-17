@@ -3,7 +3,7 @@ export interface Property {
   title: string;
   description: string;
   price: number;
-  image: string[];
+  images: string[];
   location: {
     city: string;
     address: string;

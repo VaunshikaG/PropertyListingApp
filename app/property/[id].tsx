@@ -28,29 +28,13 @@ export default function PropertyDetailScreen() {
     );
   }
 
-  console.log("property:", property);
+  console.log("property:", property.images.length);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.imageContainer}>
-        {/* {property?.image?.length > 0 ? (
-          property.image.map((img, idx) => (
-            <Image
-              key={idx}
-              source={{ uri: img }}
-              style={styles.image}
-              resizeMode="cover"
-            />
-          ))
-        ) : (
-          <Image
-            source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        )} */}
-        {property && property?.image?.length > 0 ? (
-          property.image.map((img, idx) => (
+        {property && property?.images?.length > 0 ? (
+          property.images.map((img, idx) => (
             <Image
               key={idx}
               source={{ uri: img }}
