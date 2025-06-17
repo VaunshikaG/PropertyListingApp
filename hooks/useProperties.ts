@@ -1,25 +1,55 @@
-// hooks/useProperties.ts
-// Custom hook for fetching properties using React Query.
+import { useState, useEffect } from 'react';
+import { Property } from '@/types';
+import { fetchProperties } from '@/utils/api';
 
-import { useQuery } from '@tanstack/react-query';
-import { getProperties, getPropertyById } from '../api';
-import { Property } from '../types';
+export function useProperties(initialSearch = '') {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [search, setSearch] = useState(initialSearch);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export const useProperties = () => {
-  return useQuery<Property[], Error>({
-    queryKey: ['properties'], // Unique key for this query
-    queryFn: getProperties, // Function to fetch the data
-    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
-    // cacheTime: 10 * 60 * 1000, // Data stays in cache for 10 minutes
-  });
-};
+  // Fetch all properties
+  useEffect(() => {
+    const getProperties = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await fetchProperties();
+        setProperties(data);
+        setFilteredProperties(data);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-export const usePropertyById = (id: string) => {
-  return useQuery<Property, Error>({
-    queryKey: ['property', id], // Unique key for a single property
-    queryFn: () => getPropertyById(id),
-    enabled: !!id, // Only run query if ID is available
-    staleTime: 5 * 60 * 1000,
-    // cacheTime: 10 * 60 * 1000,
-  });
-};
+    getProperties();
+  }, []);
+
+  // Filter properties based on search term
+  useEffect(() => {
+    if (!search.trim()) {
+      setFilteredProperties(properties);
+      return;
+    }
+
+    const searchLower = search.toLowerCase();
+    const filtered = properties.filter(
+      (property) =>
+        property.title.toLowerCase().includes(searchLower) ||
+        property.location.city.toLowerCase().includes(searchLower) ||
+        property.location.address.toLowerCase().includes(searchLower)
+    );
+    setFilteredProperties(filtered);
+  }, [search, properties]);
+
+  return {
+    properties: filteredProperties,
+    isLoading,
+    error,
+    search,
+    setSearch,
+  };
+}

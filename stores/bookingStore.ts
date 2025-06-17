@@ -1,19 +1,48 @@
-// stores/bookingStore.ts
-// Zustand store for managing local booking state (e.g., booked properties for immediate display)
-// Although bookings are fetched from API, we can use this for optimistic updates or client-side additions.
-
 import { create } from 'zustand';
-import { Booking, Property } from '../types';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Booking } from '@/types';
+import { createBooking, fetchUserBookings } from '@/utils/api';
 
 interface BookingState {
   bookings: Booking[];
-  addBooking: (booking: Booking) => void;
-  setBookings: (bookings: Booking[]) => void;
-  // For simplicity, we won't handle deleting/updating bookings here, but you'd add methods for that.
+  isLoading: boolean;
+  error: string | null;
+  fetchBookings: (userId: number) => Promise<void>;
+  addBooking: (booking: Omit<Booking, 'id'>) => Promise<void>;
 }
 
-export const useBookingStore = create<BookingState>((set) => ({
-  bookings: [], // Initial empty array of bookings
-  addBooking: (booking) => set((state) => ({ bookings: [...state.bookings, booking] })),
-  setBookings: (bookings) => set({ bookings }),
-}));
+export const useBookingStore = create<BookingState>()(
+  persist(
+    (set, get) => ({
+      bookings: [],
+      isLoading: false,
+      error: null,
+      fetchBookings: async (userId: number) => {
+        set({ isLoading: true, error: null });
+        try {
+          const bookings = await fetchUserBookings(userId);
+          set({ bookings, isLoading: false });
+        } catch (error) {
+          set({ error: (error as Error).message, isLoading: false });
+        }
+      },
+      addBooking: async (booking) => {
+        set({ isLoading: true, error: null });
+        try {
+          const newBooking = await createBooking(booking);
+          set({ 
+            bookings: [...get().bookings, newBooking],
+            isLoading: false 
+          });
+        } catch (error) {
+          set({ error: (error as Error).message, isLoading: false });
+        }
+      },
+    }),
+    {
+      name: 'booking-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);

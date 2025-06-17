@@ -1,39 +1,43 @@
-// types/index.ts
-// Define TypeScript interfaces for your data models
-
 export interface Property {
-  id: string;
-  name: string;
-  location: string;
-  pricePerNight: number;
-  rating: number;
+  id: number;
+  title: string;
   description: string;
-  imageUrl: string;
-  features: string[]; // List of strings for features
+  price: number;
+  image: string[];
+  location: {
+    city: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
+  features: string[];
+  rating: number;
+  reviews: number;
+  host: {
+    name: string;
+    image: string;
+  };
 }
 
 export interface Booking {
-  id: string;
-  propertyId: string;
-  userId: string;
-  bookingDate: string; // ISO date string, e.g., "2025-07-01"
-  checkInDate: string;
-  checkOutDate: string;
+  id: number;
+  propertyId: number;
+  userId: number;
+  startDate: string;
+  endDate: string;
   totalPrice: number;
+  status: 'confirmed' | 'pending' | 'cancelled';
 }
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  // Add other user profile fields as needed
+  avatar: string;
 }
 
-// API Response Types (optional, but good practice)
-export interface APIPropertiesResponse {
-  properties: Property[];
-}
-
-export interface APIBookingResponse {
-  booking: Booking;
+export interface BookingFormData {
+  startDate: string;
+  endDate: string;
+  guests: number;
 }

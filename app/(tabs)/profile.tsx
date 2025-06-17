@@ -1,98 +1,192 @@
-// app/(tabs)/profile.tsx
-// Profile Screen: Displays user profile information (placeholder).
-
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-// Removed 'styled' import
-// import { styled } from 'nativewind';
-import { FontAwesome } from "@expo/vector-icons";
-import { useProfileStore } from "../../stores/profileStore";
-
-// No need for Styled components
-// const StyledView = styled(View);
-// const StyledText = styled(Text);
-// const StyledTouchableOpacity = styled(TouchableOpacity);
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
+import {
+  Mail,
+  Phone,
+  LogOut,
+  Settings,
+  ChevronRight,
+} from "lucide-react-native";
+import { useUserStore } from "@/stores/useStore";
+import { colors } from "@/constants/colors";
+import { Button } from "@/components/shared/Button";
 
 export default function ProfileScreen() {
-  const { user, clearUser } = useProfileStore();
+  const { user, logout } = useUserStore();
 
-  const handleLogout = () => {
-    // In a real app, this would clear authentication tokens, etc.
-    clearUser();
-    // Redirect to login screen if one existed
-    // Using a simple alert for now, as per original code.
-    // In a real app, replace with a custom modal/toast.
-    alert("Logged out (functionality not fully implemented)");
-  };
-
-  return (
-    // Directly use View, Text, TouchableOpacity with className
-    <View className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="p-4 bg-white shadow-sm border-b border-gray-100">
-        <Text className="text-2xl font-extrabold text-gray-900 font-inter-bold">
-          Profile
+  if (!user) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>Not logged in</Text>
+        <Text style={styles.emptySubtext}>
+          Please log in to view your profile
         </Text>
       </View>
+    );
+  }
 
-      <View className="flex-1 items-center p-6 mt-8">
-        <View className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md items-center border border-gray-100">
-          <FontAwesome
-            name="user-circle"
-            size={80}
-            color="#3b82f6"
-            className="mb-4"
-          />
-          {user ? (
-            <>
-              <Text className="text-2xl font-bold text-gray-900 mb-2 font-inter-bold">
-                {user.name}
-              </Text>
-              <Text className="text-md text-gray-600 mb-6 font-inter-regular">
-                {user.email}
-              </Text>
-              {/* Add more profile fields here */}
-              <View className="w-full border-t border-gray-200 pt-4 mt-4">
-                <TouchableOpacity
-                  onPress={() =>
-                    alert("Edit Profile functionality not implemented")
-                  }
-                  className="flex-row items-center justify-center bg-gray-100 py-3 rounded-lg mb-3"
-                >
-                  <FontAwesome name="edit" size={20} color="#4b5563" />
-                  <Text className="text-gray-800 ml-3 text-lg font-inter-semibold">
-                    Edit Profile
-                  </Text>
-                </TouchableOpacity>
+  return (
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.header}>
+        <Image source={{ uri: user.avatar }} style={styles.avatar} />
+        <Text style={styles.name}>{user.name}</Text>
+        <Text style={styles.email}>{user.email}</Text>
+      </View>
 
-                <TouchableOpacity
-                  onPress={handleLogout}
-                  className="flex-row items-center justify-center bg-red-100 py-3 rounded-lg"
-                >
-                  <FontAwesome name="sign-out" size={20} color="#dc2626" />
-                  <Text className="text-red-700 ml-3 text-lg font-inter-semibold">
-                    Logout
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
-            <View>
-              <Text className="text-lg text-gray-600 font-inter-regular mb-4">
-                You are not logged in.
-              </Text>
-              <TouchableOpacity
-                onPress={() => alert("Login functionality not implemented")}
-                className="bg-blue-600 py-3 px-6 rounded-lg shadow-md"
-              >
-                <Text className="text-white text-lg font-inter-bold">
-                  Login / Sign Up
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Account Information</Text>
+
+        <View style={styles.infoItem}>
+          <Mail size={20} color={colors.primary} style={styles.infoIcon} />
+          <View style={styles.infoContent}>
+            <Text style={styles.infoLabel}>Email</Text>
+            <Text style={styles.infoValue}>{user.email}</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoItem}>
+          <Phone size={20} color={colors.primary} style={styles.infoIcon} />
+          <View style={styles.infoContent}>
+            <Text style={styles.infoLabel}>Phone</Text>
+            <Text style={styles.infoValue}>+1 (555) 123-4567</Text>
+          </View>
         </View>
       </View>
-    </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Settings</Text>
+
+        <TouchableOpacity style={styles.menuItem}>
+          <Settings size={20} color={colors.primary} style={styles.menuIcon} />
+          <Text style={styles.menuText}>Account Settings</Text>
+          <ChevronRight size={20} color={colors.textLight} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem}>
+          <Settings size={20} color={colors.primary} style={styles.menuIcon} />
+          <Text style={styles.menuText}>Notifications</Text>
+          <ChevronRight size={20} color={colors.textLight} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem}>
+          <Settings size={20} color={colors.primary} style={styles.menuIcon} />
+          <Text style={styles.menuText}>Privacy</Text>
+          <ChevronRight size={20} color={colors.textLight} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.logoutContainer}>
+        <Button
+          title="Log Out"
+          onPress={logout}
+          variant="outline"
+          icon={<LogOut size={20} color={colors.primary} />}
+        />
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    alignItems: "center",
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: colors.text,
+    marginBottom: 4,
+  },
+  email: {
+    fontSize: 16,
+    color: colors.textLight,
+  },
+  section: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.text,
+    marginBottom: 16,
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  infoIcon: {
+    marginRight: 12,
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: colors.textLight,
+    marginBottom: 2,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: colors.text,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  menuIcon: {
+    marginRight: 12,
+  },
+  menuText: {
+    flex: 1,
+    fontSize: 16,
+    color: colors.text,
+  },
+  logoutContainer: {
+    padding: 16,
+    marginBottom: 32,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.text,
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: colors.textLight,
+    textAlign: "center",
+  },
+});
