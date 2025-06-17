@@ -8,11 +8,14 @@ import {
   Platform,
   ScrollView,
   Dimensions,
+  Alert,
 } from "react-native";
-import { Calendar, MapPin } from "lucide-react-native";
+import { Calendar, MapPin, Users, XCircle } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { Booking, Property } from "@/types";
 import { useRouter } from "expo-router";
+import { useBookingStore } from "@/stores/bookingStore";
+import { useUserStore } from "@/stores/useStore";
 
 const { width } = Dimensions.get("window");
 
@@ -26,6 +29,8 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   property,
 }) => {
   const router = useRouter();
+  const { user } = useUserStore();
+
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -38,6 +43,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
       </View>
     );
   }
+
   const handlePress = () => {
     router.push(`/property/${property.id}`);
   };
@@ -72,28 +78,57 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={handlePress}
-      activeOpacity={0.9}
-    >
+    <View>
       <View style={styles.imageContainer}>
-        {property.images && property.images.length > 0 ? (
-          property.images.map((img, idx) => (
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          style={styles.scrollView}
+        >
+          {(property.images.length > 0
+            ? property.images
+            : ["https://reactnative.dev/img/tiny_logo.png"]
+          ).map((img, idx) => (
             <Image
               key={idx}
               source={{ uri: img }}
-              style={styles.styleImg}
+              style={[styles.styleImg, { width }]}
               resizeMode="cover"
+              onError={(e) => {
+                console.error(
+                  "Image failed to load:",
+                  img,
+                  e.nativeEvent.error
+                );
+                e.currentTarget.setNativeProps({
+                  source: [
+                    {
+                      uri: "https://placehold.co/150x150/CCCCCC/666666?text=Image+Error",
+                    },
+                  ],
+                });
+              }}
             />
-          ))
-        ) : (
-          <Image
-            source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-            style={styles.styleImg}
-            resizeMode="cover"
-          />
-        )}
+          ))}
+        </ScrollView>
+        <View style={styles.dotsContainer}>
+          {(property.images.length > 0
+            ? property.images
+            : ["https://reactnative.dev/img/tiny_logo.png"]
+          ).map((_, idx) => (
+            <View
+              key={idx}
+              style={[
+                styles.dot,
+                activeIndex === idx ? styles.activeDot : null,
+              ]}
+            />
+          ))}
+        </View>
         <View
           style={[
             styles.statusBadge,
@@ -103,30 +138,36 @@ export const BookingCard: React.FC<BookingCardProps> = ({
           <Text style={styles.statusText}>{booking.status}</Text>
         </View>
       </View>
-      <View style={styles.contentContainer}>
-        <Text style={styles.title} numberOfLines={1}>
-          {property.title}
-        </Text>
-        <View style={styles.locationContainer}>
-          <MapPin size={14} color={colors.textLight} />
-          <Text style={styles.locationText} numberOfLines={1}>
-            {property.location.city}, {property.location.address}
+      <TouchableOpacity
+        style={styles.container}
+        onPress={handlePress}
+        activeOpacity={0.9}
+      >
+        <View style={styles.contentContainer}>
+          <Text style={styles.title} numberOfLines={1}>
+            {property.title}
           </Text>
+          <View style={styles.locationContainer}>
+            <MapPin size={14} color={colors.textLight} />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {property.location.city}, {property.location.address}
+            </Text>
+          </View>
+          <View style={styles.dateContainer}>
+            <Calendar size={14} color={colors.textLight} />
+            <Text style={styles.dateText}>
+              {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
+            </Text>
+          </View>
+          <View style={styles.priceContainer}>
+            <Text style={styles.priceLabel}>Total:</Text>
+            <Text style={styles.price}>
+              ${booking.totalPrice.toLocaleString()}
+            </Text>
+          </View>
         </View>
-        <View style={styles.dateContainer}>
-          <Calendar size={14} color={colors.textLight} />
-          <Text style={styles.dateText}>
-            {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
-          </Text>
-        </View>
-        <View style={styles.priceContainer}>
-          <Text style={styles.priceLabel}>Total:</Text>
-          <Text style={styles.price}>
-            ${booking.totalPrice.toLocaleString()}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -152,8 +193,10 @@ const styles = StyleSheet.create({
     }),
   },
   styleImg: {
-    width: "100%",
+    width: width,
     height: "100%",
+    borderRadius: 12,
+    marginRight: 8,
   },
   scrollView: {
     width: "100%",
@@ -182,9 +225,6 @@ const styles = StyleSheet.create({
     height: 150,
     width: "100%",
     position: "relative",
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    overflow: "hidden",
   },
   statusBadge: {
     position: "absolute",

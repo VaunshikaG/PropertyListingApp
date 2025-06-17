@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Booking } from '@/types';
-import { createBooking, fetchUserBookings } from '@/utils/api';
+import { fetchUserBookings, createBooking } from '@/utils/api';
 
 interface BookingState {
   bookings: Booking[];
@@ -18,6 +18,7 @@ export const useBookingStore = create<BookingState>()(
       bookings: [],
       isLoading: false,
       error: null,
+
       fetchBookings: async (userId: number) => {
         set({ isLoading: true, error: null });
         try {
@@ -27,13 +28,14 @@ export const useBookingStore = create<BookingState>()(
           set({ error: (error as Error).message, isLoading: false });
         }
       },
+
       addBooking: async (booking) => {
         set({ isLoading: true, error: null });
         try {
           const newBooking = await createBooking(booking);
-          set({ 
+          set({
             bookings: [...get().bookings, newBooking],
-            isLoading: false 
+            isLoading: false
           });
         } catch (error) {
           set({ error: (error as Error).message, isLoading: false });
